@@ -1,14 +1,15 @@
--- Start with an empty scaffold for 'lilac'. Add real hexes later.
+-- --------------------------------------------------
+-- Palette Variants
+-- --------------------------------------------------
 local M = {}
 
 M.variants = {
   lilac = {
-    -- Fill these in as you iterate:
-    -- bg = "#", fg = "#",
-    -- muted = "#", subtle = "#",
+    -- bg = "#", bg_alt = "#", fg = "#",
+    -- subtle = "#", muted = "#", comment = "#",
     -- red = "#", orange = "#", yellow = "#", green = "#",
     -- cyan = "#", blue = "#", magenta = "#",
-    -- sel = "#", line = "#", float = "#", border = "#", comment = "#",
+    -- sel = "#", line = "#", float = "#", border = "#",
     -- git_add = "#", git_change = "#", git_del = "#",
     -- err = "#", warn = "#", info = "#", hint = "#", ok = "#",
   },
