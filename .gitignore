@@ -1,0 +1,27 @@
+# python tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+.mypy_cache/
+.pytest_cache/
+
+# node (if you add helpers later)
+node_modules/
+*.log
+
+# macOS
+.DS_Store
+
+# generated theme artifacts (keep structure via .gitkeep)
+ghostty/themes/*
+!ghostty/themes/.gitkeep
+blink/themes/*.js
+!blink/themes/.gitkeep
+iterm/*.itermcolors
+tmux/*
+!tmux/.gitkeep
+
+# keep empty dirs
+!.gitkeep
