@@ -3,18 +3,27 @@
 -- --------------------------------------------------
 local M = {}
 
-M.opts = { default_variant = "lilac", use_terminal_ansi = true }
+M.opts = {
+  default_variant = "lilac",
+  ansi_only = true,     -- <— key: use terminal palette, no hex
+}
 
 function M.setup(opts)
   M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
 end
 
 function M.load(variant)
-  local P = require("mira.palette").get(variant or M.opts.default_variant)
-  if M.opts.use_terminal_ansi then
-    local g = vim.g.terminal_ansi_colors
-    if type(g) == "table" and #g >= 16 then P.ansi = g end
+  -- ANSI-only mode: let the terminal map colors; don't use truecolor.
+  if M.opts.ansi_only then
+    vim.g.mira_ansi_only = true
+    vim.opt.termguicolors = false
+  else
+    vim.g.mira_ansi_only = false
+    vim.opt.termguicolors = true
   end
+
+  local P = require("mira.palette").get(variant or M.opts.default_variant)
+  -- In ansi_only mode we don't need P.ansi at all; indices are enough.
   require("mira.highlights").apply(P)
   return P
 end

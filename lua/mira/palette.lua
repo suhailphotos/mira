@@ -1,16 +1,12 @@
 -- --------------------------------------------------
--- Palette Variants
+-- Palette Variants (terminal-first)
 -- --------------------------------------------------
 local M = {}
 
 M.variants = {
   lilac = {
-    ansi = {
-      "#232323", "#fba6df", "#9bcafb", "#fcb2c7",
-      "#94b3fb", "#c995f9", "#9c98f8", "#b4b3c0",
-      "#84838c", "#fbbbe6", "#bbdafb", "#faabc3",
-      "#a5befa", "#c995f9", "#9c98f8", "#e0deee",
-    },
+    -- No hardcoded `ansi` here.
+    -- Mira will read from vim.g.terminal_ansi_colors at load time.
   },
 }
 
@@ -21,7 +17,6 @@ local function read_terminal_ansi()
     for i = 1, 16 do out[i] = t[i] end
     return out
   end
-  return nil
 end
 
 function M.get(name)

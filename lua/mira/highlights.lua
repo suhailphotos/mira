@@ -6,46 +6,38 @@ local M = {}
 local function hi(group, spec)
   if type(spec) ~= "table" then return end
   if not (spec.fg or spec.bg or spec.bold or spec.italic or spec.underline
-          or spec.undercurl or spec.link or spec.sp) then
+          or spec.undercurl or spec.link or spec.sp or spec.ctermfg or spec.ctermbg) then
     return
   end
   vim.api.nvim_set_hl(0, group, spec)
 end
 
+local ANSI_ONLY = (vim.g.mira_ansi_only == true)
+
 -- ANSI helpers (index 0..15)
-local function ansi_hex(P, i)
-  -- Lua tables are 1-indexed; ANSI is 0..15 → shift by +1
-  return (P.ansi and P.ansi[i + 1]) or nil
+local function afg(_, i)
+  if ANSI_ONLY then return { ctermfg = i } end
+  return nil
 end
-local function afg(P, i)
-  local x = ansi_hex(P, i)
-  return x and { fg = x, ctermfg = i } or nil
+local function abg(_, i)
+  if ANSI_ONLY then return { ctermbg = i } end
+  return nil
 end
-local function abg(P, i)
-  local x = ansi_hex(P, i)
-  return x and { bg = x, ctermbg = i } or nil
-end
-local function afgbg(P, fi, bi)
-  local s, f, b = {}, ansi_hex(P, fi), ansi_hex(P, bi)
-  if f then s.fg = f; s.ctermfg = fi end
-  if b then s.bg = b; s.ctermbg = bi end
-  return next(s) and s or nil
+local function afgbg(_, fi, bi)
+  if ANSI_ONLY then return { ctermfg = fi, ctermbg = bi } end
+  return nil
 end
 
 function M.apply(P)
-  if not (P and P.ansi and #P.ansi >= 16) then
-    vim.notify("mira: no ANSI palette (need 16). Set vim.g.terminal_ansi_colors or variant.ansi.", vim.log.levels.WARN)
-    return
-  end
-  if type(P) ~= "table" or next(P) == nil then return end
+  -- In ansi-only mode we don't care about P at all.
+  -- We just map indices → UI/syntax via cterm.
 
   -- --------------------------------------------------
-  -- Core UI (ANSI-first)
+  -- Core UI (ANSI indices)
   -- --------------------------------------------------
-  -- Leave Normal/NormalNC alone to honor the terminal background/foreground.
-  -- Give a clear, terminal-driven statusline baseline:
-  hi("StatusLine",   afgbg(P, 15, 0))   -- bright white on black
-  hi("StatusLineNC", afgbg(P, 8,  0))   -- dim gray on black
+  -- Leave Normal/NormalNC alone to honor terminal bg/fg.
+  hi("StatusLine",   afgbg(P, 15, 0))   -- bright white on ANSI black
+  hi("StatusLineNC", afgbg(P, 8,  0))   -- dim gray on ANSI black
   hi("WinSeparator", afg(P, 8))
   hi("LineNr",       afg(P, 8))
   hi("CursorLine",   abg(P, 8))
@@ -53,16 +45,13 @@ function M.apply(P)
   hi("Visual",       abg(P, 8))
   hi("EndOfBuffer",  afg(P, 8))
 
-  -- Popup/menu clarity
   hi("Pmenu",        afgbg(P, 15, 0))
   hi("PmenuSel",     afgbg(P, 0,  15))
-
-  -- Float borders use a neutral
   hi("NormalFloat",  afgbg(P, 15, 0))
   hi("FloatBorder",  afgbg(P, 8,  0))
 
   -- --------------------------------------------------
-  -- Syntax (ANSI-first)
+  -- Syntax (ANSI indices)
   -- --------------------------------------------------
   hi("Comment",    afg(P, 8))
   hi("String",     afg(P, 2))   -- green
@@ -70,7 +59,7 @@ function M.apply(P)
   hi("Number",     afg(P, 3))   -- yellow
   hi("Float",      afg(P, 3))
   hi("Boolean",    afg(P, 3))
-  hi("Identifier", afg(P, 15))  -- default bright fg
+  hi("Identifier", afg(P, 15))  -- bright fg
   hi("Function",   afg(P, 4))   -- blue
   hi("Keyword",    afg(P, 5))   -- magenta
   hi("Statement",  afg(P, 5))
@@ -78,18 +67,14 @@ function M.apply(P)
   hi("Operator",   afg(P, 6))   -- cyan
   hi("Constant",   afg(P, 12))  -- bright blue
 
-  -- Diagnostics
+  -- Diagnostics (underline still works; undercurl color is terminal-chosen)
   hi("DiagnosticError", afg(P, 1))
   hi("DiagnosticWarn",  afg(P, 3))
   hi("DiagnosticInfo",  afg(P, 4))
   hi("DiagnosticHint",  afg(P, 6))
   hi("DiagnosticOk",    afg(P, 2))
-  hi("DiagnosticUnderlineError", { undercurl = true, sp = ansi_hex(P, 1) })
-  hi("DiagnosticUnderlineWarn",  { undercurl = true, sp = ansi_hex(P, 3) })
-  hi("DiagnosticUnderlineInfo",  { undercurl = true, sp = ansi_hex(P, 4) })
-  hi("DiagnosticUnderlineHint",  { undercurl = true, sp = ansi_hex(P, 6) })
 
-  -- Treesitter → link to the Vim groups above
+  -- Treesitter links (names only; colors resolved by the linked groups)
   vim.api.nvim_set_hl(0, "@comment",  { link = "Comment"  })
   vim.api.nvim_set_hl(0, "@string",   { link = "String"   })
   vim.api.nvim_set_hl(0, "@number",   { link = "Number"   })
