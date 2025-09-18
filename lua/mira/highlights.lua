@@ -12,101 +12,80 @@ local function hi(group, spec)
   vim.api.nvim_set_hl(0, group, spec)
 end
 
--- token helpers (unchanged)
-local function fg(P, k) return P[k] and { fg = P[k] } or nil end
-local function bg(P, k) return P[k] and { bg = P[k] } or nil end
-local function fgbg(P, fk, bk)
-  local s = {}
-  if P[fk] then s.fg = P[fk] end
-  if P[bk] then s.bg = P[bk] end
-  return next(s) and s or nil
-end
-
--- NEW: ANSI helpers (use ANSI by index; 0..15)
+-- ANSI helpers (index 0..15)
 local function ansi_hex(P, i)
-  return (P.ansi and P.ansi[i + 1]) or nil   -- Lua is 1-indexed
+  -- Lua tables are 1-indexed; ANSI is 0..15 → shift by +1
+  return (P.ansi and P.ansi[i + 1]) or nil
 end
 local function afg(P, i)
   local x = ansi_hex(P, i)
-  return x and { fg = x } or nil
+  return x and { fg = x, ctermfg = i } or nil
 end
 local function abg(P, i)
   local x = ansi_hex(P, i)
-  return x and { bg = x } or nil
+  return x and { bg = x, ctermbg = i } or nil
 end
 local function afgbg(P, fi, bi)
   local s, f, b = {}, ansi_hex(P, fi), ansi_hex(P, bi)
-  if f then s.fg = f end
-  if b then s.bg = b end
+  if f then s.fg = f; s.ctermfg = fi end
+  if b then s.bg = b; s.ctermbg = bi end
   return next(s) and s or nil
 end
 
 function M.apply(P)
   if type(P) ~= "table" or next(P) == nil then return end
 
-  ------------------------------------------------------------------
-  -- Core UI (token-driven if tokens exist)
-  ------------------------------------------------------------------
-  hi("Normal",       fgbg(P, "fg", "bg"))
-  hi("NormalNC",     fgbg(P, "fg", "bg"))
-  hi("CursorLine",   bg(P,  "line"))
-  hi("CursorColumn", bg(P,  "line"))
-  hi("Visual",       bg(P,  "sel"))
-  hi("WinSeparator", fg(P,  "border"))
-  hi("StatusLine",   fgbg(P, "subtle", "bg_alt"))
-  hi("StatusLineNC", fgbg(P, "muted",  "bg_alt"))
-  hi("Pmenu",        fgbg(P, "fg", "float"))
-  hi("PmenuSel",     fgbg(P, "fg", "sel"))
-  hi("NormalFloat",  fgbg(P, "fg", "float"))
-  hi("FloatBorder",  fgbg(P, "border", "float"))
-  hi("LineNr",       fg(P,  "muted"))
-  hi("CursorLineNr", fg(P,  "fg"))
-  hi("EndOfBuffer",  fg(P,  "border"))
+  -- --------------------------------------------------
+  -- Core UI (ANSI-first)
+  -- --------------------------------------------------
+  -- Leave Normal/NormalNC alone to honor the terminal background/foreground.
+  -- Give a clear, terminal-driven statusline baseline:
+  hi("StatusLine",   afgbg(P, 15, 0))   -- bright white on black
+  hi("StatusLineNC", afgbg(P, 8,  0))   -- dim gray on black
+  hi("WinSeparator", afg(P, 8))
+  hi("LineNr",       afg(P, 8))
+  hi("CursorLine",   abg(P, 8))
+  hi("CursorLineNr", afg(P, 15))
+  hi("Visual",       abg(P, 8))
+  hi("EndOfBuffer",  afg(P, 8))
 
-  ------------------------------------------------------------------
-  -- ANSI-first fallbacks (kick in when tokens are empty)
-  -- This gives you a visible bar even with an empty palette.
-  ------------------------------------------------------------------
-  if P.ansi and not (P.bg or P.fg or P.subtle or P.bg_alt) then
-    -- Statusline = bg: ANSI 0 (your “black”), text: ANSI 7 (light) / NC uses ANSI 8 (dim)
-    hi("StatusLine",   afgbg(P, 7, 0))   -- fg=ansi7, bg=ansi0
-    hi("StatusLineNC", afgbg(P, 8, 0))   -- fg=ansi8, bg=ansi0
+  -- Popup/menu clarity
+  hi("Pmenu",        afgbg(P, 15, 0))
+  hi("PmenuSel",     afgbg(P, 0,  15))
 
-    -- A couple of gentle defaults so the UI isn’t *totally* bare
-    hi("LineNr",       afg(P, 8))        -- dim gutter numbers
-    hi("CursorLine",   abg(P, 8))        -- subtle line band
-    hi("EndOfBuffer",  afg(P, 8))
-  end
+  -- Float borders use a neutral
+  hi("NormalFloat",  afgbg(P, 15, 0))
+  hi("FloatBorder",  afgbg(P, 8,  0))
 
-  ------------------------------------------------------------------
-  -- Syntax (token-driven)
-  ------------------------------------------------------------------
-  hi("Comment",    fg(P, "comment"))
-  hi("String",     fg(P, "green"))
-  hi("Character",  fg(P, "green"))
-  hi("Number",     fg(P, "orange"))
-  hi("Float",      fg(P, "orange"))
-  hi("Boolean",    fg(P, "orange"))
-  hi("Identifier", fg(P, "fg"))
-  hi("Function",   fg(P, "blue"))
-  hi("Keyword",    fg(P, "magenta"))
-  hi("Statement",  fg(P, "magenta"))
-  hi("Type",       fg(P, "yellow"))
-  hi("Operator",   fg(P, "cyan"))
-  hi("Constant",   fg(P, "cyan"))
+  -- --------------------------------------------------
+  -- Syntax (ANSI-first)
+  -- --------------------------------------------------
+  hi("Comment",    afg(P, 8))
+  hi("String",     afg(P, 2))   -- green
+  hi("Character",  afg(P, 2))
+  hi("Number",     afg(P, 3))   -- yellow
+  hi("Float",      afg(P, 3))
+  hi("Boolean",    afg(P, 3))
+  hi("Identifier", afg(P, 15))  -- default bright fg
+  hi("Function",   afg(P, 4))   -- blue
+  hi("Keyword",    afg(P, 5))   -- magenta
+  hi("Statement",  afg(P, 5))
+  hi("Type",       afg(P, 11))  -- bright yellow
+  hi("Operator",   afg(P, 6))   -- cyan
+  hi("Constant",   afg(P, 12))  -- bright blue
 
-  -- Diagnostics (token-driven)
-  hi("DiagnosticError", fg(P, "err"))
-  hi("DiagnosticWarn",  fg(P, "warn"))
-  hi("DiagnosticInfo",  fg(P, "info"))
-  hi("DiagnosticHint",  fg(P, "hint"))
-  hi("DiagnosticOk",    fg(P, "ok"))
-  hi("DiagnosticUnderlineError", { undercurl = true, sp = P.err })
-  hi("DiagnosticUnderlineWarn",  { undercurl = true, sp = P.warn })
-  hi("DiagnosticUnderlineInfo",  { undercurl = true, sp = P.info })
-  hi("DiagnosticUnderlineHint",  { undercurl = true, sp = P.hint })
+  -- Diagnostics
+  hi("DiagnosticError", afg(P, 1))
+  hi("DiagnosticWarn",  afg(P, 3))
+  hi("DiagnosticInfo",  afg(P, 4))
+  hi("DiagnosticHint",  afg(P, 6))
+  hi("DiagnosticOk",    afg(P, 2))
+  hi("DiagnosticUnderlineError", { undercurl = true, sp = ansi_hex(P, 1) })
+  hi("DiagnosticUnderlineWarn",  { undercurl = true, sp = ansi_hex(P, 3) })
+  hi("DiagnosticUnderlineInfo",  { undercurl = true, sp = ansi_hex(P, 4) })
+  hi("DiagnosticUnderlineHint",  { undercurl = true, sp = ansi_hex(P, 6) })
 
-  -- Treesitter links
+  -- Treesitter → link to the Vim groups above
   vim.api.nvim_set_hl(0, "@comment",  { link = "Comment"  })
   vim.api.nvim_set_hl(0, "@string",   { link = "String"   })
   vim.api.nvim_set_hl(0, "@number",   { link = "Number"   })
