@@ -33,6 +33,10 @@ local function afgbg(P, fi, bi)
 end
 
 function M.apply(P)
+  if not (P and P.ansi and #P.ansi >= 16) then
+    vim.notify("mira: no ANSI palette (need 16). Set vim.g.terminal_ansi_colors or variant.ansi.", vim.log.levels.WARN)
+    return
+  end
   if type(P) ~= "table" or next(P) == nil then return end
 
   -- --------------------------------------------------

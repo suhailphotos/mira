@@ -5,8 +5,12 @@ local M = {}
 
 M.variants = {
   lilac = {
-    -- Optional: you may add token hexes later, but not required now.
-    -- ansi = { ... }  -- if omitted, we’ll read from terminal
+    ansi = {
+      "#232323", "#fba6df", "#9bcafb", "#fcb2c7",
+      "#94b3fb", "#c995f9", "#9c98f8", "#b4b3c0",
+      "#84838c", "#fbbbe6", "#bbdafb", "#faabc3",
+      "#a5befa", "#c995f9", "#9c98f8", "#e0deee",
+    },
   },
 }
 
