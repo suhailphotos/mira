@@ -62,7 +62,7 @@ function M.apply(P)
   hi("WinSeparator", afg(P, 8))
   hi("LineNr",       afg(P, 8))
   hi("CursorLine",   abg(P, 8))
-  hi("CursorLineNr", afg(P, 15))
+  hi("CursorLineNr", afg(P, 7))
   hi("Visual",       abg(P, 8))
   hi("EndOfBuffer",  afg(P, 8))
 
