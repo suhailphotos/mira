@@ -39,7 +39,7 @@ function M.apply(P)
   hi("StatusLine",   afgbg(P, 8, 0))   -- bright white on ANSI black
   hi("StatusLineNC", afgbg(P, 8,  0))   -- dim gray on ANSI black
   hi("WinSeparator", afg(P, 8))
-  hi("LineNr",       afg(P, 0))
+  hi("LineNr",       afg(P, 8))
   hi("CursorLine",   abg(P, 8))
   hi("CursorLineNr", afg(P, 15))
   hi("Visual",       abg(P, 8))
