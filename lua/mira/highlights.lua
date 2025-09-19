@@ -34,7 +34,28 @@ function M.apply(P)
 
   -- --------------------------------------------------
   -- Core UI (ANSI indices)
-  -- --------------------------------------------------
+  -- --------------------------------------------------a
+  -- Intro / generic UI accents
+  hi("Title",     afg(P, 15))  -- headers (also used by :intro)
+  hi("Question",  afg(P, 12))  -- prompts
+  hi("MoreMsg",   afg(P, 12))
+  hi("NonText",   afg(P, 8))   -- “~” lines, etc.
+  hi("SpecialKey",afg(P, 8))
+
+  -- Help buffer syntax (overrides the defaults from $VIMRUNTIME/syntax/help.vim)
+  hi("helpHeader",        afg(P, 15))
+  hi("helpSectionDelim",  afg(P, 8))
+  hi("helpHyperTextJump", afg(P, 12))  -- links
+  hi("helpHyperTextEntry",afg(P, 12))
+  hi("helpURL",           afg(P, 12))
+  hi("helpNote",          afg(P, 3))
+  hi("helpWarning",       afg(P, 1))
+  hi("helpExample",       afg(P, 2))
+  hi("helpSpecial",       afg(P, 6))
+  hi("helpOption",        afg(P, 4))
+  hi("helpCommand",       afg(P, 5))
+  hi("helpBacktick",      afg(P, 8))
+
   -- Leave Normal/NormalNC alone to honor terminal bg/fg.
   hi("StatusLine",   afgbg(P, 4, 0))   -- bright white on ANSI black
   hi("StatusLineNC", afgbg(P, 8,  0))   -- dim gray on ANSI black
