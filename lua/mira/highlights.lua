@@ -71,7 +71,7 @@ function M.apply(P)
   -- --------------------------------------------------
   -- Syntax (ANSI indices)
   -- --------------------------------------------------
-  hi("Comment",    afg(P, 7,  ANSI_ONLY))
+  hi("Comment",    afg(P, 8,  ANSI_ONLY))
   hi("String",     afg(P, 2,  ANSI_ONLY))
   hi("Character",  afg(P, 2,  ANSI_ONLY))
   hi("Number",     afg(P, 3,  ANSI_ONLY))
