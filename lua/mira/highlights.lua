@@ -60,7 +60,7 @@ function M.apply(P)
   hi("LineNr",       afg(P, 8,  ANSI_ONLY))
   hi("CursorLine",   abg(P, 8,  ANSI_ONLY))
   hi("CursorLineNr", afg(P, 7, ANSI_ONLY))       -- <-- true “white” (use 7 for light gray)
-  hi("Visual",       abg(P, 8,  ANSI_ONLY))
+  hi("Visual",       abg(P, 0,  ANSI_ONLY))
   hi("EndOfBuffer",  afg(P, 0,  ANSI_ONLY))
 
   hi("Pmenu",        afgbg(P, 15, 0,  ANSI_ONLY))
