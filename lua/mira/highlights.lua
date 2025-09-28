@@ -54,7 +54,7 @@ function M.apply(P)
   -- Core UI (ANSI indices)
   -- --------------------------------------------------
   -- Leave Normal/NormalNC alone to honor terminal bg/fg.
-  hi("StatusLine",   afgbg(P, 4,  0, ANSI_ONLY))  -- blue on ANSI black
+  hi("StatusLine",   afgbg(P, 6,  0, ANSI_ONLY))  -- blue on ANSI black
   hi("StatusLineNC", afgbg(P, 8,  0, ANSI_ONLY))  -- dim gray on black
   hi("WinSeparator", afg(P, 8,  ANSI_ONLY))
   hi("LineNr",       afg(P, 8,  ANSI_ONLY))
